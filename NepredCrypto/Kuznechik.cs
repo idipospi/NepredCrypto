@@ -32,7 +32,7 @@ namespace NepredCrypto
 
         public static byte[] GetKey(string keyString)
         {
-            // Потом добавить соль
+            // TODO: Добавить соль
             Console.WriteLine($"Key phrase: {keyString}");
             MD5Digest keyDigest = new MD5Digest();
             keyDigest.BlockUpdate(System.Text.Encoding.UTF8.GetBytes(keyString), 0, keyString.Length);

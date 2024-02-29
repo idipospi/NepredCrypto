@@ -3,6 +3,7 @@ namespace NepredCrypto
 {
     class Program
     {
+        // TODO: Нужно добавить парсер для ввода входного файла и ключа и флаги для выбора режима шифрования/расшифрования
         public static string separator = "--------------------------------------------------------";
         static void Main(string[] args)
         {
