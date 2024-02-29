@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace NepredCrypto
 {
@@ -29,5 +28,4 @@ namespace NepredCrypto
             return data;
         }
     }
-
 }
