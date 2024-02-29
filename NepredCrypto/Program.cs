@@ -3,18 +3,20 @@ namespace NepredCrypto
 {
     class Program
     {
+        public static string separator = "--------------------------------------------------------";
         static void Main(string[] args)
         {
-            Console.WriteLine("This is will be crypto program. It will be added soon.");
-            
+            Console.WriteLine(Program.separator);
             // Ключ
-            string keyString = "helloitskeyphrase123qwertyasdfg!";
-            char[] keyChars = keyString.ToCharArray();
-            byte[] key = System.Text.Encoding.UTF8.GetBytes(keyChars);
+            string keyString = "password";
+            byte[] key = Kuznechik.GetKey(keyString);
+            
+            // Ввод данных
+            string plaintext = "Здесь могут находиться любые данные для шифрования";
+            Console.WriteLine($"Plaintext: {plaintext}");
+            Console.WriteLine(Program.separator);
             
             // Шифрование
-            string plaintext = "Hello, this is secret data. It may be anything you want. Проверка русского текста.";
-            Console.WriteLine($"Plaintext: {plaintext}");
             byte[] dataToEnc = System.Text.Encoding.UTF8.GetBytes(plaintext);
             byte[] ciphertext = Kuznechik.Encrypt(dataToEnc, key);
             Console.WriteLine($"Encrypted: {Hex.ToHexString(ciphertext)}");
@@ -25,4 +27,3 @@ namespace NepredCrypto
         }
     }
 }
-

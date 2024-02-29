@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace NepredCrypto
 {
@@ -26,6 +28,20 @@ namespace NepredCrypto
         {
             Kuznechik_Decrypt(key, data, data.Length);
             return data;
+        }
+
+        public static byte[] GetKey(string keyString)
+        {
+            // Потом добавить соль
+            Console.WriteLine($"Key phrase: {keyString}");
+            MD5Digest keyDigest = new MD5Digest();
+            keyDigest.BlockUpdate(System.Text.Encoding.UTF8.GetBytes(keyString), 0, keyString.Length);
+            byte[] key = new byte[keyDigest.GetDigestSize()];
+            keyDigest.DoFinal(key, 0);
+            keyString = Hex.ToHexString(key);
+            Console.WriteLine($"Key: {keyString}");
+            Console.WriteLine(Program.separator);
+            return key;
         }
     }
 }
