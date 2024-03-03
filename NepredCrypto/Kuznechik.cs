@@ -33,13 +33,13 @@ namespace NepredCrypto
         public static byte[] GetKey(string keyString)
         {
             // TODO: Добавить соль
-            Console.WriteLine($"Key phrase: {keyString}");
+            Console.WriteLine($"Пароль: {keyString}");
             MD5Digest keyDigest = new MD5Digest();
             keyDigest.BlockUpdate(System.Text.Encoding.UTF8.GetBytes(keyString), 0, keyString.Length);
             byte[] key = new byte[keyDigest.GetDigestSize()];
             keyDigest.DoFinal(key, 0);
             keyString = Hex.ToHexString(key);
-            Console.WriteLine($"Key: {keyString}");
+            Console.WriteLine($"Ключ: {keyString}");
             Console.WriteLine(Program.separator);
             return key;
         }
