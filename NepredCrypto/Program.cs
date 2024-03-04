@@ -114,6 +114,13 @@ namespace NepredCrypto
                     return;
                 }
                 
+                if (!keySet)
+                {
+                    Console.WriteLine("Ключ обязателен для шифрования/расшифрования. " +
+                                      "Используйте -k или --key для задания ключа.");
+                    return;
+                }
+                
                 if (outSet)
                 {
                     outPath = getAllString(args[outArg], args, outArg);
@@ -135,13 +142,6 @@ namespace NepredCrypto
                     }
                     
                     Console.WriteLine($"Путь к выходному файлу: {outPath}");
-                }
-                
-                if (!keySet)
-                {
-                    Console.WriteLine("Ключ обязателен для шифрования/расшифрования." +
-                    " Используйте -k или --key для задания ключа.");
-                    return;
                 }
                 
                 if (keySet)
