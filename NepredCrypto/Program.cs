@@ -3,7 +3,6 @@ namespace NepredCrypto
 {
     class Program
     {
-        // TODO: Нужно добавить парсер для ввода входного файла и ключа и флаги для выбора режима шифрования/расшифрования
         public static string separator = "--------------------------------------------------------";
         static void Main(string[] args)
         {
@@ -17,12 +16,31 @@ namespace NepredCrypto
             int decArg = 0;
             int keyArg = 0;
             int outArg = 0;
+            string outPath = "";
+            string keyString = "";
+            string fileToEncPath = "";
+            byte[] key = new byte[32];
             
             if (args.Length == 0)
             {
                 // Help menu
                 HelpMenu();
                 needDo = false;
+            }
+            
+            // Проверка чтобы один аргумент не задавался дважды
+            HashSet<string> uniqueArguments = new HashSet<string>();
+            foreach (string arg in args)
+            {
+                if (arg.StartsWith("-"))
+                {
+                    if (!uniqueArguments.Add(arg))
+                    {
+                        // Аргумент уже задан ранее
+                        Console.WriteLine($"Аргумент {arg} задан дважды.");
+                        return;
+                    }
+                }
             }
             
             if (needDo)
@@ -37,27 +55,46 @@ namespace NepredCrypto
                     {
                         needEncrypt = true;
                         encArg = i + 1;
+                        if (encArg >= args.Length)
+                        {
+                            Console.WriteLine("Некоррекно задан аргумент " + args[i]);    
+                            return;
+                        }
                     }
                     if (args[i] == "-d" || args[i] == "--decrypt")
                     {
                         needDecrypt = true;
                         decArg = i + 1;
+                        if (decArg >= args.Length)
+                        {
+                            Console.WriteLine("Некоррекно задан аргумент " + args[i]);    
+                            return;
+                        }
                     }
                     // Обязательный параметр
                     if (args[i] == "-k" || args[i] == "--key")
                     {
                         keySet = true;
                         keyArg = i + 1;
+                        if (keyArg >= args.Length)
+                        {
+                            Console.WriteLine("Некоррекно задан аргумент " + args[i]);    
+                            return;
+                        }
                     }
                     if (args[i] == "-o" || args[i] == "--output")
                     {
                         outSet = true;
                         outArg = i + 1;
+                        if (outArg >= args.Length)
+                        {
+                            Console.WriteLine("Некоррекно задан аргумент " + args[i]);    
+                            return;
+                        }
                     }
                 }
                 // FOR TESTING
                 Console.WriteLine("Args count: " + args.Length);
-                // Проверка чтобы один аргумент не задавался дважды!
                 
                 if (needHelp)
                 {
@@ -77,18 +114,27 @@ namespace NepredCrypto
                     return;
                 }
                 
-                string fullPath = "";
-                int k = 1;
                 if (outSet)
                 {
-                    fullPath = args[outArg];
-                    while (true)
-                    { 
-                        fullPath += " " + args[outArg + k];
-                        k++;
-                        if (outArg + k >= args.Length || args[outArg + k].StartsWith('-')) break;
+                    outPath = getAllString(args[outArg], args, outArg);
+                    // Если путь - одно слово, то файл будет создан в текущей директории
+                    if (outPath.Split(' ').Length == 1 && (!outPath.Contains('\\') && !outPath.Contains('/'))) 
+                    {
+                        outPath = Directory.GetCurrentDirectory() + "\\" + outPath;
                     }
-                    Console.WriteLine($"Путь к выходному файлу: {fullPath}");
+                    // Создание файла по указанному пути
+                    try
+                    {
+                        if (!File.Exists(outPath))
+                            File.Create(outPath).Close();   
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Путь к выходному файлу некорректен");
+                        return;
+                    }
+                    
+                    Console.WriteLine($"Путь к выходному файлу: {outPath}");
                 }
                 
                 if (!keySet)
@@ -102,9 +148,8 @@ namespace NepredCrypto
                 {
                     if (needEncrypt || needDecrypt)
                     {
-                        // TODO: Сделать для ключа то же самое что и для пути к выходному файлу
-                        string keyString = args[keyArg];
-                        byte[] key = Kuznechik.GetKey(keyString);
+                        keyString = getAllString(args[keyArg], args, keyArg);
+                        key = Kuznechik.GetKey(keyString);
                     }
                     else
                     {
@@ -113,6 +158,14 @@ namespace NepredCrypto
                     }
                 }
                 // TODO: Реализовать ввод параметров ширфования/расшифрования
+                // if (needEncrypt)
+                // {
+                //     fileToEncPath = getAllString(args[encArg], args, encArg);
+                //     Console.WriteLine($"Путь к входному файлу: {fileToEncPath}");
+                //     byte[] dataToEnc = File.ReadAllBytes(fileToEncPath);
+                //     byte[] ciphertext = Kuznechik.Encrypt(dataToEnc, key);
+                //     File.WriteAllBytes(outPath, ciphertext);
+                // }
             }
             
                 
@@ -144,6 +197,32 @@ namespace NepredCrypto
             Console.WriteLine("-d, --decrypt\tУказать путь к файлу для расшифрования");
             Console.WriteLine("-k, --key\tЗадать ключ");
             Console.WriteLine("-o, --output\tУказать путь к выходному файлу");
+        }
+
+        private static string getAllString(string path, string[] args, int arg)
+        {
+            try
+            {
+                if (arg >= args.Length) throw new Exception("Некорректно задан аргумент " + args[arg-1]);
+                if(args[arg].StartsWith('-')) 
+                    throw new Exception("Некорректно задан аргумент " + args[arg-1]);
+                int k = 1;
+                string result = path;
+                if (arg + k >= args.Length || args[arg + k].StartsWith('-')) return result;
+                while (true)
+                { 
+                    result += " " + args[arg + k];
+                    k++;
+                    if (arg + k >= args.Length || args[arg + k].StartsWith('-')) break;
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Environment.Exit(1);
+                return null;
+            }
         }
     }
 }
